@@ -16,7 +16,10 @@ $(() => {
 				bellEvery: 3,
 
 				currentMusicMinutes: 0,
-				currentMusicSeconds: 0
+				currentMusicSeconds: 0,
+
+				musicUrl: "assets/musics/sound-of-invisible-waters.mp3",
+				bellUrl: "assets/bells/bell_3.mp3",
 			}
 		},
 
@@ -24,17 +27,20 @@ $(() => {
 			volumeBell(val) { if (this.bell == null) return; this.bell.volume = val; },
 			volumeMusic(val) { if (this.music == null) return; this.music.volume = val; },
 
-			musicRange(ratio) {
-				
+			bellUrl(val) {
+				this.setBell(val);
 			},
+			
+			musicUrl(val) {
+				this.setMusic(val);
+			}
 		},
 
 		mounted() {
 			setInterval(this.tick, 100);
 
-			this.setBell('assets/bells/bell_3.mp3');
-			this.setMusic('assets/musics/sound-of-invisible-waters.mp3');
-	
+			this.setBell(this.bellUrl);
+			this.setMusic(this.musicUrl);
 		},
 
 		computed: {
@@ -81,7 +87,7 @@ $(() => {
 
 			setBell(url)
 			{
-				if (this.bell != null) this.bell.stop();
+				if (this.bell != null) this.bell.pause();
 				this.bell = new Audio(url);
 				this.bell.autoplay = false;
 				this.bell.load();
@@ -89,7 +95,7 @@ $(() => {
 			
 			setMusic(url)
 			{
-				if (this.music != null) this.music.stop();
+				if (this.music != null) this.music.pause();
 				this.music = new Audio(url);
 				this.music.autoplay = false;
 				this.music.load();

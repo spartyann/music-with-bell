@@ -1,4 +1,18 @@
-<!DOCTYPE html>
+<?php
+
+$dirMusics = array_merge(glob(__DIR__ . '/assets/musics/*.wav'), glob(__DIR__ . '/assets/musics/*.mp3'));
+$dirBells = array_merge(glob(__DIR__ . '/assets/bells/*.wav'), glob(__DIR__ . '/assets/bells/*.mp3'));
+
+$dirBells = array_map(function($dir) {
+	return str_replace(__DIR__ . '/', '', $dir);
+}, $dirBells);
+
+$dirMusics = array_map(function($dir) {
+	return str_replace(__DIR__ . '/', '', $dir);
+}, $dirMusics);
+
+
+?><!DOCTYPE html>
 <html lang="fr">
 	<head>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,11 +27,9 @@
 		<link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		<script src="assets/bootstrap/js/bootstrap.bundle.min.js" ></script>
 
-		
 		<script src="assets/js/app.js" ></script>
 		<link href="assets/css/app.css" rel="stylesheet">
 		
-
 		<link rel="manifest" href="manifest.json">
 	</head>
 
@@ -34,23 +46,35 @@
 								<div class="td wsnw vam pe-2">
 									<label for="" class="form-label">Musique: </label>
 								</div>
-								<div class="td-100 vam">
-									
+								<div class="td-100 vam p-1">
+									<div class="d-inline-block">
+										<select v-model="musicUrl" id="" class="form-control">
+											<?php foreach($dirMusics as $music) { ?>
+												<option value="<?php echo htmlentities($music); ?>"><?php echo basename($music); ?></option>
+											<?php } ?>
+										</select>
+									</div>
 								</div>
 							</div>
 							<div class="tr">
 								<div class="td wsnw vam pe-2">
 									<label for="" class="form-label">Clochette: </label>
 								</div>
-								<div class="td-100 vam">
-									
+								<div class="td-100 vam p-1">
+									<div class="d-inline-block">
+										<select v-model="bellUrl" id="" class="form-control">
+											<?php foreach($dirBells as $bell) { ?>
+												<option value="<?php echo htmlentities($bell); ?>"><?php echo basename($bell); ?></option>
+											<?php } ?>
+										</select>
+									</div>
 								</div>
 							</div>
 							<div class="tr">
 								<div class="td wsnw vam pe-2">
 									<label for="bellEvery" class="form-label">Clochettes toutes les: </label>
 								</div>
-								<div class="td-100 vam">
+								<div class="td-100 vam p-1">
 									<div class="d-inline-block">
 										<select v-model="bellEvery" id="bellEvery" class="form-control">
 											<option value="1">1 minute</option>
@@ -104,7 +128,9 @@
 						<span class="badge bg-secondary fz-100">{{ currentMusicTimeString }}</span>
 					</div>
 				
-					<input type="range" class="form-range" min="0" max="1" step="0.00001" value="1" v-model="musicRange" v-on:input="userChangeMusicRange"/>
+					<div class="my-4">
+						<input type="range" class="form-range" min="0" max="1" step="0.00001" value="1" v-model="musicRange" v-on:input="userChangeMusicRange"/>
+					</div>
 					
 					<!--<input type="range" class="form-range" min="0" max="1" step="0.00001" value="1" v-model="bellRange" v-on:input="userChangeMusicRange"/>-->
 				</div>
