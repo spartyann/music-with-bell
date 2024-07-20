@@ -1,28 +1,6 @@
 
-var bell = null;
-var music = null;
-var elementVolumeBell = null;
-var elementVolumeMusic = null;
-
 
 $(() => {
-	let bellRange = $('#bell-range');
-	let musicRange = $('#music-range');
-	let elementVolumeBell = $('#vol-bell');
-	let elementVolumeMusic = $('#vol-music');
-	
-	elementVolumeBell.on("input", () => { if (bell == null) return; bell.volume = elementVolumeBell.val(); });
-	elementVolumeMusic.on("input", () => { if (music == null) return; music.volume = elementVolumeMusic.val(); });
-
-
-	
-	musicRange.on("input", () => {
-		if (music == null) return;
-		let ratio = musicRange.val();
-		music.currentTime = ratio * music.duration;
-	});
-
-
 
 	Vue.createApp({
 		data() {
@@ -32,8 +10,23 @@ $(() => {
 				volumeBell : 1,
 				volumeMusic : 1,
 
+				bellRange : 0,
+				musicRange : 0,
 
+				bellEvery: 3,
+
+				currentMusicMinutes: 0,
+				currentMusicSeconds: 0
 			}
+		},
+
+		watch: {
+			volumeBell(val) { if (this.bell == null) return; this.bell.volume = val; },
+			volumeMusic(val) { if (this.music == null) return; this.music.volume = val; },
+
+			musicRange(ratio) {
+				
+			},
 		},
 
 		mounted() {
@@ -48,6 +41,17 @@ $(() => {
 			loaded() {
 				return this.bell != null && this.music != null;
 				// TODO Audio => Loaded
+			},
+
+			currentMusicTimeString() {
+				return this.fillZero(this.currentMusicMinutes, 2) + ":" + this.fillZero(this.currentMusicSeconds, 2);
+			},
+
+			bellCurrentTimeForMusic() {
+				if (this.currentMusicMinutes == 0) return null;
+				if (this.currentMusicMinutes % this.bellEvery != 0) return null;
+				if (this.currentMusicSeconds > this.bell.duration) return null;
+				return this.currentMusicSeconds;
 			}
 
 		},
@@ -55,8 +59,10 @@ $(() => {
 		methods: {
 			clickPlay(){
 				if (this.loaded == false ) return;
-				this.bell.play();
 				this.music.play();
+
+				// Bell running ?
+				if (this.bell.currentTime != 0 && this.bell.currentTime != this.bell.duration) this.bell.play();
 			},
 
 			clickPause(){
@@ -91,13 +97,76 @@ $(() => {
 			},
 			
 			tick(){
-				if (this.bell == null || this.music == null) return;
+				if (this.bell == null || this.music == null)
+				{
+					this.currentMusicMinutes = 0;
+					this.currentMusicSeconds = 0;
+					return;
+				} 
 			
-				let bellRange = $('#bell-range');
-				let musicRange = $('#music-range');
-			
-				bellRange.val(this.bell.currentTime / this.bell.duration);
-				musicRange.val(this.music.currentTime / this.music.duration);
+				this.bellRange = this.bell.currentTime / this.bell.duration;
+				this.musicRange = this.music.currentTime / this.music.duration;
+				
+				this.updateCurrentMusicMinutesAndSecond();
+
+				// Loop
+				if (this.music.currentTime >= this.music.duration)
+				{
+					this.music.currentTime = 0;
+					this.music.play();
+				}
+
+				// Bell
+				if (this.bellCurrentTimeForMusic !== null)
+				{
+					if (this.bell.currentTime == 0 || this.bell.currentTime == this.bell.duration)
+					{
+						this.bell.currentTime = this.bellCurrentTimeForMusic;
+						this.bell.play();
+					}
+				}
+
+				if (this.bellCurrentTimeForMusic === null)
+				{
+					if (this.bell.currentTime != 0)
+					{
+						this.bell.pause();
+						this.bell.currentTime = 0;
+					}
+				}
+
+			},
+
+			updateCurrentMusicMinutesAndSecond(){
+				this.currentMusicMinutes = Math.floor(this.music.currentTime / 60);
+				this.currentMusicSeconds = Math.floor(this.music.currentTime - this.currentMusicMinutes * 60);
+			},
+
+			userChangeMusicRange()
+			{
+				if (this.music == null) return; 
+				this.music.currentTime = this.musicRange * this.music.duration;
+
+				this.updateCurrentMusicMinutesAndSecond();
+
+				if (this.bellCurrentTimeForMusic !== null)
+				{
+					this.bell.currentTime = this.bellCurrentTimeForMusic;
+					this.bell.play();
+				}
+
+				if (this.bellCurrentTimeForMusic === null)
+				{
+					this.bell.pause();
+					this.bell.currentTime = 0;
+				}
+			},
+
+			fillZero(str, nbTotalChars = 2) {
+				str = str + "";
+				let nb = nbTotalChars - str.length;
+				while(nb > 0) { str = "0" + str; nb--; }
+				return str;
 			}
 
 		}

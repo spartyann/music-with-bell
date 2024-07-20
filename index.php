@@ -15,6 +15,8 @@
 
 		
 		<script src="assets/js/app.js" ></script>
+		<link href="assets/css/app.css" rel="stylesheet">
+		
 
 		<link rel="manifest" href="manifest.json">
 	</head>
@@ -24,28 +26,87 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-12">
-					<button class="btn btn-primary" @click="clickPlay"><i class="fa fa-play"></i> Play</button>
-					<button class="btn btn-primary" @click="clickPause"><i class="fa fa-pause"></i> Pause</button>
-					<button class="btn btn-danger" @click="clickStop"><i class="fa fa-stop"></i> Stop</button>
 
-					<div class="card mt-3 mb-3">
-						<div class="card-body">
-							<div class="row">
-								<div class="col-md-6">
-									<label for="vol-music" class="form-label">Volume musique <span class="badge bg-primary">{{ Math.round(volumeMusic * 100) }}</span></label>
-									<input type="range" class="form-range" min="0" max="1" step="0.05" value="1" id="vol-music" v-model="volumeMusic"/>
+					<div class="my-3">
+
+						<div class="tbl-100">
+							<div class="tr">
+								<div class="td wsnw vam pe-2">
+									<label for="" class="form-label">Musique: </label>
 								</div>
-								<div class="col-md-6">
-									<label for="vol-bell" class="form-label">Volume clochette <span class="badge bg-primary">{{ Math.round(volumeBell * 100) }}</span></label>
-									<input type="range" class="form-range" min="0" max="1" step="0.05" value="1" id="vol-bell" v-model="volumeBell"/>
+								<div class="td-100 vam">
+									
+								</div>
+							</div>
+							<div class="tr">
+								<div class="td wsnw vam pe-2">
+									<label for="" class="form-label">Clochette: </label>
+								</div>
+								<div class="td-100 vam">
+									
+								</div>
+							</div>
+							<div class="tr">
+								<div class="td wsnw vam pe-2">
+									<label for="bellEvery" class="form-label">Clochettes toutes les: </label>
+								</div>
+								<div class="td-100 vam">
+									<div class="d-inline-block">
+										<select v-model="bellEvery" id="bellEvery" class="form-control">
+											<option value="1">1 minute</option>
+											<option value="2">2 minutes</option>
+											<option value="3">3 minutes</option>
+											<option value="4">4 minutes</option>
+											<option value="5">5 minutes</option>
+											<option value="6">6 minutes</option>
+											<option value="10">10 minutes</option>
+											<option value="15">15 minutes</option>
+											<option value="20">20 minutes</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="tr">
+								<div class="td wsnw vam pe-3">
+									<label for="vol-music" class="form-label">Volume musique </label>
+								</div>
+								<div class="td-100 vam">
+									<input type="range" class="form-range vam" min="0" max="1" step="0.05" value="1" id="vol-music" v-model="volumeMusic"/>
+								</div>
+								<div class="td vam ps-2">
+									<span class="badge bg-primary">{{ Math.round(volumeMusic * 100) }}</span>
+								</div>
+							</div>
+							<div class="tr">
+								<div class="td wsnw vam pe-3">
+									<label for="vol-bell" class="form-label">Volume clochette</label>
+								</div>
+								<div class="td-100 vam">
+									<input type="range" class="form-range  vam" min="0" max="1" step="0.05" value="1" id="vol-bell" v-model="volumeBell"/>
+								</div>
+								<div class="td vam ps-2">
+									<span class="badge bg-primary">{{ Math.round(volumeBell * 100) }}</span>
 								</div>
 							</div>
 						</div>
+						
 					</div>
+
+					<div class="my-3 text-center">
+						<button class="btn btn-primary btn-lg" @click="clickPlay"><i class="fa fa-play"></i> Play</button>
+						&nbsp;
+						<button class="btn btn-primary btn-lg" @click="clickPause"><i class="fa fa-pause"></i> Pause</button>
+						&nbsp;
+						<button class="btn btn-danger btn-lg" @click="clickStop"><i class="fa fa-stop"></i> Stop</button>
+					</div>
+
+					<div class="text-center fz-180 digicode">
+						<span class="badge bg-secondary fz-100">{{ currentMusicTimeString }}</span>
+					</div>
+				
+					<input type="range" class="form-range" min="0" max="1" step="0.00001" value="1" v-model="musicRange" v-on:input="userChangeMusicRange"/>
 					
-					
-					<input type="range" class="form-range" min="0" max="1" step="0.00001" value="1" id="bell-range"/>
-					<input type="range" class="form-range" min="0" max="1" step="0.00001" value="1" id="music-range"/>
+					<!--<input type="range" class="form-range" min="0" max="1" step="0.00001" value="1" v-model="bellRange" v-on:input="userChangeMusicRange"/>-->
 				</div>
 			</div>
 		</div>
