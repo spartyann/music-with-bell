@@ -18,7 +18,7 @@ $(() => {
 				currentMusicMinutes: 0,
 				currentMusicSeconds: 0,
 
-				musicUrl: "assets/musics/sound-of-invisible-waters.mp3",
+				musicUrl: "assets/musics/koyasan.mp3",
 				bellUrl: "assets/bells/bell_3.mp3",
 			}
 		},
