@@ -27,8 +27,15 @@ $dirMusics = array_map(function($dir) {
 		<link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		<script src="assets/bootstrap/js/bootstrap.bundle.min.js" ></script>
 
-		<script src="assets/js/app.js" ></script>
-		<link href="assets/css/app.css" rel="stylesheet">
+		<script>
+
+			var global_first_music = '<?php echo addslashes($dirMusics[0]) ?>';
+			var global_first_bell = '<?php echo addslashes($dirBells[0]) ?>';
+
+		</script>
+
+		<script src="assets/js/app.js?t=<?php echo filemtime(__DIR__ . '/assets/js/app.js'); ?>" ></script>
+		<link href="assets/css/app.css?t=<?php echo filemtime(__DIR__ . '/assets/css/app.css'); ?>" rel="stylesheet">
 		
 		<link rel="manifest" href="manifest.json">
 	</head>
@@ -61,12 +68,23 @@ $dirMusics = array_map(function($dir) {
 									<label for="" class="form-label">Clochette: </label>
 								</div>
 								<div class="td-100 vam p-1">
-									<div class="d-inline-block">
-										<select v-model="bellUrl" id="" class="form-control">
+									<div class="d-inline-block wsnw vam">
+										<select v-model="bellUrl" id="" class="form-control d-inline-block me-3">
 											<?php foreach($dirBells as $bell) { ?>
 												<option value="<?php echo htmlentities($bell); ?>"><?php echo basename($bell); ?></option>
 											<?php } ?>
 										</select>
+
+										<template v-if="ready">
+											<button class="btn btn-primary vam" @click="testBell" v-if="bellTestRange == 0">
+												<i class="fa fa-play"></i>
+											</button>
+											<div class="d-inline-block" v-else>
+												<div class="progress" style="width:50px;" >
+													<div class="progress-bar" role="progressbar" :style="'width: ' + Math.round(bellTestRange * 100) + '%'"></div>
+												</div>
+											</div>
+										</template>
 									</div>
 								</div>
 							</div>
@@ -90,49 +108,72 @@ $dirMusics = array_map(function($dir) {
 									</div>
 								</div>
 							</div>
-							<div class="tr">
-								<div class="td wsnw vam pe-3">
-									<label for="vol-music" class="form-label">Volume musique </label>
+
+							<template v-if="ready">
+								<div class="tr">
+									<div class="td wsnw vam pe-3">
+										<label for="vol-music" class="form-label">Volume musique </label>
+									</div>
+									<div class="td-100 vam">
+										<input type="range" class="form-range vam" min="0" max="1" step="0.05" value="1" id="vol-music" v-model="volumeMusic"/>
+									</div>
+									<div class="td vam ps-2">
+										<span class="badge bg-primary">{{ Math.round(volumeMusic * 100) }}</span>
+									</div>
 								</div>
-								<div class="td-100 vam">
-									<input type="range" class="form-range vam" min="0" max="1" step="0.05" value="1" id="vol-music" v-model="volumeMusic"/>
+								<div class="tr">
+									<div class="td wsnw vam pe-3">
+										<label for="vol-bell" class="form-label">Volume clochette</label>
+									</div>
+									<div class="td-100 vam">
+										<input type="range" class="form-range  vam" min="0" max="1" step="0.05" value="1" id="vol-bell" v-model="volumeBell"/>
+									</div>
+									<div class="td vam ps-2">
+										<span class="badge bg-primary">{{ Math.round(volumeBell * 100) }}</span>
+									</div>
 								</div>
-								<div class="td vam ps-2">
-									<span class="badge bg-primary">{{ Math.round(volumeMusic * 100) }}</span>
-								</div>
-							</div>
-							<div class="tr">
-								<div class="td wsnw vam pe-3">
-									<label for="vol-bell" class="form-label">Volume clochette</label>
-								</div>
-								<div class="td-100 vam">
-									<input type="range" class="form-range  vam" min="0" max="1" step="0.05" value="1" id="vol-bell" v-model="volumeBell"/>
-								</div>
-								<div class="td vam ps-2">
-									<span class="badge bg-primary">{{ Math.round(volumeBell * 100) }}</span>
-								</div>
-							</div>
+							</template>
 						</div>
 						
 					</div>
 
-					<div class="my-3 text-center">
-						<button class="btn btn-primary btn-lg" @click="clickPlay"><i class="fa fa-play"></i> Play</button>
-						&nbsp;
-						<button class="btn btn-primary btn-lg" @click="clickPause"><i class="fa fa-pause"></i> Pause</button>
-						&nbsp;
-						<button class="btn btn-danger btn-lg" @click="clickStop"><i class="fa fa-stop"></i> Stop</button>
-					</div>
+					<template v-if="ready == false">
+						
+						<div class=" text-center vam">
+							<div class="d-inline-block vam">
+								<div class="spinner-border text-primary vam" style="width: 3rem; height: 3rem;" role="status">
+									<span class="sr-only">Loading...</span>
+								</div>
+								&nbsp;&nbsp;Chargement...
+							</div>
+						</div>
+						
+					</template>
 
-					<div class="text-center fz-180 digicode">
-						<span class="badge bg-secondary fz-100">{{ currentMusicTimeString }}</span>
-					</div>
-				
-					<div class="my-4">
-						<input type="range" class="form-range" min="0" max="1" step="0.00001" value="1" v-model="musicRange" v-on:input="userChangeMusicRange"/>
-					</div>
+					<template v-if="ready">
+
+						<div class="my-3 text-center">
+							<button class="btn btn-primary btn-lg" @click="clickPlay"><i class="fa fa-play"></i> Play</button>
+							&nbsp;
+							<button class="btn btn-primary btn-lg" @click="clickPause"><i class="fa fa-pause"></i> Pause</button>
+							&nbsp;
+							<button class="btn btn-danger btn-lg" @click="clickStop"><i class="fa fa-stop"></i> Stop</button>
+						</div>
+
+						<div class="text-center fz-180 digicode">
+							<span class="badge bg-secondary fz-100">{{ currentTimeUserIsEditingString == null ? currentMusicTimeString : currentTimeUserIsEditingString }}</span>
+							/
+							<span class="badge bg-secondary fz-100">{{ totalMusicTimeString }}</span>
+							
+						</div>
 					
-					<!--<input type="range" class="form-range" min="0" max="1" step="0.00001" value="1" v-model="bellRange" v-on:input="userChangeMusicRange"/>-->
+						<div class="my-4">
+							<input type="range" class="form-range" min="0" max="1" step="0.00001" value="1" v-model="musicRange" v-on:change="userChangeMusicRange"
+							v-on:input="userInputMusicRange"/>
+						</div>
+						
+						<!--<input type="range" class="form-range" min="0" max="1" step="0.00001" value="1" v-model="bellRange" v-on:input="userChangeMusicRange"/>-->
+					</template>
 				</div>
 			</div>
 		</div>
